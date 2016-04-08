@@ -1,6 +1,7 @@
 %%
 %
-%
+% Track driving simulator
+% Sungjoon Choi (sungjoon.choi@cpslab.snu.ac.kr)
 %
 ccc
 
@@ -46,7 +47,7 @@ end
 
 % Simulation
 T    = 0.1;
-tick = 0;
+tick = 0; 
 % Figure
 fig = figure(1);
 set(fig, 'KeyPressFcn', @keyDownListener, 'Position', [200 300 900 800] ...
