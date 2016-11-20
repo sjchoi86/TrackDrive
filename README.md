@@ -3,7 +3,7 @@ This simulator is intended for developing algorithms for autonomous cars.
 
 ## Track Driving Simulation
 ![](http://i.giphy.com/HxJDa7UQ1g81i.gif)
- [YouTube Link](https://www.youtube.com/watch?v=7_buzNvUfmA&feature=youtu.be)
+ * [YouTube Link](https://www.youtube.com/watch?v=7_buzNvUfmA&feature=youtu.be)
 
 ## Main Features
 1. Control a car with keyboard inputs. 
