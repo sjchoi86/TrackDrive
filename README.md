@@ -1,9 +1,17 @@
 # Track Driving Simulator in MATLAB
-
-## This simulator is intended for developing 
+This simulator is intended for developing algorithms for autonomous cars. 
 
 ## Track Driving Simulation
 ![](http://i.giphy.com/HxJDa7UQ1g81i.gif)
+
+## Main Features
+1. Control a car with keyboard inputs. 
+2. Compose tracks with a block-building like manner. 
+3. Obtainable features are
+  * Lane deviate distance / degree
+  * Distances from the closest right, center, and left cars
+  * Geodesic distance from the start lane
+  * Which lane and segment the current car is located at. 
 
 ## How to Run?
 Run "demo_trackusage.m" 
