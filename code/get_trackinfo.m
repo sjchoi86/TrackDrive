@@ -1,10 +1,11 @@
 function [info, emsec] = get_trackinfo(track, car_pos, othercars)
 
 iclk = clock;
-maxdist2car = 100*1000; % <= maximum distance we will care about (100m)
+maxdist2car = 40*1000; % <= maximum distance we will care about (40m)
 
 seg_idx = -1;
 for i = 1:track.nr_seg
+    % CHECK WHICH SEGMENT CURRENT CAR BELONG TO
     curr_bd = track.seg{i}.bd;
     if inpolygon(car_pos(1), car_pos(2), curr_bd(:, 1), curr_bd(:, 2))
         seg_idx = i;
@@ -13,6 +14,10 @@ for i = 1:track.nr_seg
 end
 
 info.seg_idx = seg_idx;
+
+info.center_fb_dists = maxdist2car;
+info.left_fb_dists   = maxdist2car;
+info.right_fb_dists  = maxdist2car;
 
 % If car_pos is inside the track,
 % 1) compute dist from center / 2) compute geodesic dist
@@ -85,17 +90,17 @@ if seg_idx > 0
     temp3 = temp2 - unit_len/2;
     info.lane_dev = temp3;
     
-    if nargin == 3  % <= This is for get info of mycar!!
+    if nargin == 3  % <= This is for getting info of mycar!!
         % To other cars
         curr_lane = info.lane_idx;
         left_lane = curr_lane  - 1;
         right_lane = curr_lane + 1;
-        cars_in_left_dists   = [];
-        cars_in_left_idxs    = [];
-        cars_in_right_dists  = [];
-        cars_in_right_idxs   = [];
-        cars_in_center_dists = [];
-        cars_in_center_idxs  = [];
+        cars_in_left_dists   = zeros(100, 1); num_in_left_dists = 0;
+        cars_in_left_idxs    = zeros(100, 1);
+        cars_in_right_dists  = zeros(100, 1); num_in_right_dists = 0;
+        cars_in_right_idxs   = zeros(100, 1);
+        cars_in_center_dists = zeros(100, 1); num_in_center_dists = 0;
+        cars_in_center_idxs  = zeros(100, 1);
         
         total_track_dist = 0;
         for i = 1:track.nr_seg
@@ -104,25 +109,37 @@ if seg_idx > 0
         
         for i = 1:othercars.n
             % For all other cars, check which lane they are at
-            othercarpos = othercars.car{i}.pos;
+            othercarpos  = othercars.car{i}.pos; 
+            dist2car = norm(othercarpos(1:2) - car_pos(1:2));
+            if dist2car > maxdist2car
+                continue;
+            end
             othercarinfo = get_trackinfo(track, othercarpos); % <= recursive function / not that readable..
             othercarlane = othercarinfo.lane_idx;
             othercardist = othercarinfo.dist;
-            dist_diff = othercardist  - info.dist ;
-            dist_diff2 = mod(dist_diff + total_track_dist/2, total_track_dist) -total_track_dist/2;
+            dist_diff    = othercardist  - info.dist ;
+            dist_diff2 = mod(dist_diff + total_track_dist/2, total_track_dist) ...
+                - total_track_dist/2;
             switch othercarlane
                 case curr_lane
-                    cars_in_center_idxs  = [cars_in_center_idxs ; i];
-                    cars_in_center_dists = [cars_in_center_dists ; dist_diff2];
+                    num_in_center_dists = num_in_center_dists + 1;
+                    cars_in_center_idxs(num_in_center_dists) = i;
+                    cars_in_center_dists (num_in_center_dists) = dist_diff2;
                 case left_lane
-                    cars_in_left_idxs  = [cars_in_left_idxs ; i];
-                    cars_in_left_dists = [cars_in_left_dists ; dist_diff2];
+                    num_in_left_dists = num_in_left_dists + 1;
+                    cars_in_left_idxs(num_in_left_dists) = i;
+                    cars_in_left_dists (num_in_left_dists) = dist_diff2;
                 case right_lane
-                    cars_in_right_idxs  = [cars_in_right_idxs ; i];
-                    cars_in_right_dists = [cars_in_right_dists ; dist_diff2];
+                    num_in_right_dists = num_in_right_dists + 1;
+                    cars_in_right_idxs(num_in_right_dists) = i;
+                    cars_in_right_dists (num_in_right_dists) = dist_diff2;
             end
         end
-        % Center lane
+        cars_in_center_dists = cars_in_center_dists(1:num_in_center_dists);
+        cars_in_left_dists   = cars_in_left_dists(1:num_in_left_dists);
+        cars_in_right_dists  = cars_in_right_dists(1:num_in_right_dists);
+        
+        % CENTER LANE
         temp = cars_in_center_dists;
         temp(temp < 0) = inf;
         centerfw = min(min(temp), maxdist2car);
@@ -130,7 +147,7 @@ if seg_idx > 0
         temp(temp > 0) = -inf;
         centerbw = min(min(-temp), maxdist2car);
         
-        % Left lane
+        % LEFT LANE
         temp = cars_in_left_dists;
         temp(temp < 0) = inf;
         leftfw = min(min(temp), maxdist2car);
@@ -138,7 +155,7 @@ if seg_idx > 0
         temp(temp > 0) = -inf;
         leftbw = min(min(-temp), maxdist2car);
         
-        % Right lane
+        % RIGHT LANE
         temp = cars_in_right_dists;
         temp(temp < 0) = inf;
         rightfw = min(min(temp), maxdist2car);
@@ -154,11 +171,9 @@ if seg_idx > 0
         if isempty(rightbw), rightbw = maxdist2car; end;
         
         info.center_fb_dists = [centerfw centerbw];
-        info.left_fb_dists = [leftfw leftbw];
-        info.right_fb_dists = [rightfw rightbw];
+        info.left_fb_dists   = [leftfw leftbw];
+        info.right_fb_dists  = [rightfw rightbw];
     end
-    
-    
 else
     info.lane_idx = -1;
     info.dev  = nan;
@@ -171,8 +186,27 @@ else
     info.right_fb_dists = [maxdist2car maxdist2car];
 end
 
+% HANDLING LEFTMOST AND RIGHTMOST LANES
+if info.lane_idx == 1
+    % LEFTMOST
+    info.left_fb_dists = [0 0];
+elseif info.lane_idx == track.nr_lane
+    % RIGHTMOST
+    info.right_fb_dists = [0 0];
+end
+
+% NORMALIZED INFO (NOT USED) 
+% info.ndev = info.dev / track.width;
+% info.nlane_dev = info.lane_dev / track.lane_width;
+% info.ndeg = info.deg / 360;
+% info.ncenter_fb_dists = info.center_fb_dists / maxdist2car;
+% info.nleft_fb_dists   = info.left_fb_dists / maxdist2car;
+% info.nright_fb_dists  = info.right_fb_dists / maxdist2car;
+
 % Time
 emsec = etime(clock, iclk)*1000;
 info.emsec = emsec;
+
+
 
 
