@@ -1,5 +1,8 @@
 # Track Driving Simulator in MATLAB
-This simulator is intended for developing algorithms for autonomous cars. 
+ * This simulator is intended for developing algorithms for autonomous cars. 
+ * It was used for implementing an imitation learning algorithm called [density matching reward learning](http://arxiv.org/abs/1608.03694). 
+![](http://i.giphy.com/o3QLfGAQNU9Bm.gif)
+ * [YouTube Link](https://www.youtube.com/watch?v=7_buzNvUfmA&feature=youtu.be)
 
 ## Track Driving Simulation
 ![](http://i.giphy.com/HxJDa7UQ1g81i.gif)
