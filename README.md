@@ -5,6 +5,7 @@
  * [YouTube Link](https://www.youtube.com/watch?v=7_buzNvUfmA&feature=youtu.be)
 
 ## Track Driving Simulation
+ * The blue car is controlled by the keyboard and the red cars autonomously maintain each lanes. 
 ![](http://i.giphy.com/HxJDa7UQ1g81i.gif)
  * [YouTube Link](https://www.youtube.com/watch?v=7_buzNvUfmA&feature=youtu.be)
 
