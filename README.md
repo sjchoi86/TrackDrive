@@ -2,13 +2,13 @@
  * This simulator is intended for developing algorithms for autonomous cars. 
  * Can be easily tuned to implement reinforcement learning or inverse reinforcement learning algorithms. 
 
-## Collecting Demonstrations
+#### Collecting Demonstrations (Run 'run_track01_manualcollect')
 ![collect](http://i.makeagif.com/media/4-10-2017/UzEzi3.gif)
-## Check Collected Demonstrations
+#### Check Collected Demonstrations (Run 'run_track02_checkcollected')
 ![check](http://i.makeagif.com/media/4-10-2017/t2CBSf.gif)
-## Train Controller with DMRL
+#### Train Controller with DMRL (Run 'run_track03_trainDMRL')
 ![train](http://i.makeagif.com/media/4-10-2017/4z14t8.gif)
-## Test on More Complex Tracks
+#### Test on More Complex Tracks (Run 'run_track04_testDMRL')
 ![test](http://i.makeagif.com/media/4-10-2017/plC0E9.gif)
 
 * For example, it was used for implementing an imitation learning algorithm named [density matching reward learning](http://arxiv.org/abs/1608.03694). 
