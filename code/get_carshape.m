@@ -29,7 +29,7 @@ yc = (y12c + y34c)/2;
 theta1 = atan2(y2-yc, x2-xc);
 theta2 = atan2(y3-yc, x3-xc);
 
-nseg = 10;
+nseg = 3;
 if theta2 > theta1
     thetas = linspace(theta1, theta2, nseg)';
 else
@@ -41,4 +41,3 @@ r = sqrt((x2-xc)^2 + (y2-yc)^2);
 seg = repmat([xc yc], nseg, 1) + r*[cs ss];
 
 bd = [x1 y1 ; x2 y2 ; seg ; x3 y3 ; x4 y4 ; x1 y1];
-

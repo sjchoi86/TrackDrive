@@ -5,7 +5,6 @@ maxdist2car = 40*1000; % <= maximum distance we will care about (40m)
 
 seg_idx = -1;
 for i = 1:track.nr_seg
-    % CHECK WHICH SEGMENT CURRENT CAR BELONG TO
     curr_bd = track.seg{i}.bd;
     if inpolygon(car_pos(1), car_pos(2), curr_bd(:, 1), curr_bd(:, 2))
         seg_idx = i;
@@ -114,6 +113,7 @@ if seg_idx > 0
             if dist2car > maxdist2car
                 continue;
             end
+            
             othercarinfo = get_trackinfo(track, othercarpos); % <= recursive function / not that readable..
             othercarlane = othercarinfo.lane_idx;
             othercardist = othercarinfo.dist;
@@ -139,15 +139,15 @@ if seg_idx > 0
         cars_in_left_dists   = cars_in_left_dists(1:num_in_left_dists);
         cars_in_right_dists  = cars_in_right_dists(1:num_in_right_dists);
         
-        % CENTER LANE
+        % Center lane
         temp = cars_in_center_dists;
-        temp(temp < 0) = inf;
+        temp(temp <= 0) = inf;
         centerfw = min(min(temp), maxdist2car);
         temp = cars_in_center_dists;
-        temp(temp > 0) = -inf;
+        temp(temp >= 0) = -inf;
         centerbw = min(min(-temp), maxdist2car);
         
-        % LEFT LANE
+        % Left lane
         temp = cars_in_left_dists;
         temp(temp < 0) = inf;
         leftfw = min(min(temp), maxdist2car);
@@ -155,7 +155,7 @@ if seg_idx > 0
         temp(temp > 0) = -inf;
         leftbw = min(min(-temp), maxdist2car);
         
-        % RIGHT LANE
+        % Right lane
         temp = cars_in_right_dists;
         temp(temp < 0) = inf;
         rightfw = min(min(temp), maxdist2car);
@@ -169,6 +169,7 @@ if seg_idx > 0
         if isempty(leftbw), leftbw = maxdist2car; end;
         if isempty(rightfw), rightfw = maxdist2car; end;
         if isempty(rightbw), rightbw = maxdist2car; end;
+        
         
         info.center_fb_dists = [centerfw centerbw];
         info.left_fb_dists   = [leftfw leftbw];
@@ -186,22 +187,19 @@ else
     info.right_fb_dists = [maxdist2car maxdist2car];
 end
 
-% HANDLING LEFTMOST AND RIGHTMOST LANES
+% Handling Left-most and Right-most lanes
 if info.lane_idx == 1
-    % LEFTMOST
+    % Leftmost
     info.left_fb_dists = [0 0];
 elseif info.lane_idx == track.nr_lane
-    % RIGHTMOST
+    % Rightmost
     info.right_fb_dists = [0 0];
 end
 
-% NORMALIZED INFO (NOT USED) 
-% info.ndev = info.dev / track.width;
-% info.nlane_dev = info.lane_dev / track.lane_width;
-% info.ndeg = info.deg / 360;
-% info.ncenter_fb_dists = info.center_fb_dists / maxdist2car;
-% info.nleft_fb_dists   = info.left_fb_dists / maxdist2car;
-% info.nright_fb_dists  = info.right_fb_dists / maxdist2car;
+% TRAFFIC LIGHT INFORMATION
+if isfield(track, 'traffic')
+    info = get_tlinfo(info, track);
+end
 
 % Time
 emsec = etime(clock, iclk)*1000;

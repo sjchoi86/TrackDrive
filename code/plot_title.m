@@ -1,22 +1,16 @@
-function plot_title(titlestr, flag)
+function ems = plot_title(titlestr, col, fs)
+% PLOT TITLE
 persistent first_flag h
 if isempty(first_flag)
     first_flag = true;
 end
 
-switch flag
-    case -1
-        col = 'r';
-    case 0
-        col = 'y';
-    case 1
-        col = 'w';
-end
-
+iclk = clock;
 if first_flag
     first_flag = false;
-    h.title = title(titlestr, 'FontSize', 25, 'Color', col);
+    h.title = title(titlestr, 'FontSize', fs, 'Color', col);
 else
     h.title.String = titlestr;
     h.title.Color = col;
 end
+ems = etime(clock, iclk)*1000;

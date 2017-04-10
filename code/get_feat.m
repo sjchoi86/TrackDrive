@@ -1,12 +1,10 @@
-function feat = get_feat(info, ctrl)
+function feat = get_feat(myinfo)
 
-if nargin == 0
-     feat = 5;
-     return
-end
+lf_dist = myinfo.left_fb_dists(1);
+cf_dist = myinfo.center_fb_dists(1);
+rf_dist = myinfo.right_fb_dists(1);
+lane_devdeg  = myinfo.deg;
+lane_devdist = myinfo.lane_dev;
 
-lf_dist = info.left_fb_dists(1);
-cf_dist = info.center_fb_dists(1);
-rf_dist = info.right_fb_dists(1);
+feat = [lf_dist, cf_dist, rf_dist, lane_devdeg, lane_devdist];
 
-feat = [info.lane_dev, info.deg, lf_dist, cf_dist, rf_dist];

@@ -1,16 +1,17 @@
-function othercars = init_othercars(nothercars, track)
+function othercars = init_othercars()
+% INITIALIZE OTHER CARS
 
-othercars = init_cars(5000, 3200);
-setrange = [2 track.nr_seg]; lanerange = [1 track.nr_lane];
-randposlist = [];
-n = 0;
-while n < nothercars
-     randpos =  get_posintrack(track, randi(setrange), 0, randi(lanerange), 0);
-     randposlist = [randposlist ; randpos];
-     temp = randposlist - repmat(randpos, size(randposlist, 1), 1);
-     temp2 = temp(:, 1)+temp(:, 2)+temp(:, 3);
-     if length(find(abs(temp2) < 1E-5)) ~= 1, continue; end;
-     % Actual appending is done here,
-     othercars = add_car(othercars, randpos, [0 0], 'normal');
-     n = n + 1;
+MAX_NRCAR = 10;
+othercars.MAX_NRCAR = MAX_NRCAR;
+othercars.n    = 0;
+othercars.car  = cell(100, 1);
+[W, H]    = get_carsize();
+for i = 1:MAX_NRCAR
+    othercars.car{i}.pos = [1E10 1E10 0]; 
+    othercars.car{i}.vel = [0 0]; 
+    othercars.car{i}.W   = W;
+    othercars.car{i}.H   = H;
+    othercars.car{i}.bd  = get_carshape(othercars.car{i}.pos, W, H);
+    
+    othercars.car{i}.paths = [];
 end

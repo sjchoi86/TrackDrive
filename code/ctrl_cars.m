@@ -1,6 +1,6 @@
 function [othercars, emsec] = ctrl_cars(othercars, track)
-
 iclk = clock;
+
 for i = 1:othercars.n
     ctrlmode = othercars.car{i}.ctrlmode;
     carpos   = othercars.car{i}.pos;
@@ -8,35 +8,41 @@ for i = 1:othercars.n
         case 'stop'
             
         case 'normal'
-            forv = 7000; % <= Forward veloicty [mm/s] -> 25 km/h
-            % Random paths
-            N = 10; K = 45; T = 0.01; wmax = 100;
-            [paths, ctrls] = get_othercarpaths(carpos, N, K ...
-                , [forv forv], [-wmax wmax], T);
+            dinfo = get_trackinfo(track, [carpos(1:2) 0]);
+            hinfo = get_trackinfo(track, carpos, othercars);
             
-            % Compute cost of each path
-            iclk2 = clock;
-            costs = zeros(N, 1);
-            for j = 1:N % For all paths
-                cpath = paths(3*j-2:3*j, :)';
-                % Initial Info
-                iinfo = get_trackinfo(track, cpath(1, :));
-                % Path cost
-                cost = 0;
-                for k = K:K
-                    cpos  = cpath(k, :);
-                    cinfo = get_trackinfo(track, cpos);
-                    cost  = cost + 1E-6*cinfo.lane_dev^2 + 1E-6*cinfo.deg^2 ...
-                        + 1E3*(iinfo.lane_idx-cinfo.lane_idx)^2;
+            % SET DIRECTIONAL VELOCITY 
+            dirvel = 10000;
+            fdist = hinfo.center_fb_dists(1); 
+            if isfield(hinfo, 'tlinfo') % IF TRRAFFIC LIGHT EXISTS
+                % SLOW DOWN IN THE YELLOW OR RED LIGHT
+                if (isequal(hinfo.tlinfo.type, 'y') || ...
+                        isequal(hinfo.tlinfo.type, 'r'))...
+                        && hinfo.tlinfo.dist2tf < 15000
+                    dirvel = 5000;
                 end
-                costs(j) = cost;
+                % STOP IN FRONT OF THE RED LIGHT
+                if isequal(hinfo.tlinfo.type, 'r') ...
+                        && hinfo.tlinfo.dist2tf < 4000
+                    dirvel = 0;
+                end
             end
-            [~, minidx] = min(costs);
-            optpath = paths(3*minidx-2:3*minidx, :);
-            othercars.car{i}.paths = optpath; 
-            % Velocity
-            othercars.car{i}.vel = ctrls(2*minidx-1:2*minidx, 1)';
+            if fdist < 7000 % IF ANOTHER CAR IS INFRONT
+                dirvel = 0;
+            end
+            
+            
+            % SET ANGULAR VELOCITY
+            lanedeg = -dinfo.deg;
+            degdiff = carpos(3) - lanedeg;
+            if degdiff >= 180, degdiff = degdiff - 360; end;
+            if degdiff <= -180, degdiff = degdiff + 360; end;
+            w = -degdiff*15 + hinfo.lane_dev * 0.3;
+            wmax = 200;
+            w = max(min(w, wmax), -wmax);
+            othercars.car{i}.vel = [dirvel, w];
+            
     end
 end
-emsec = etime(clock, iclk)*1000;
 
+emsec = etime(clock, iclk)*1000;

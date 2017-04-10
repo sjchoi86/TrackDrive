@@ -1,3 +1,5 @@
+clc
 clear all
 close all
-clc
+
+global key_pressed; key_pressed = '';

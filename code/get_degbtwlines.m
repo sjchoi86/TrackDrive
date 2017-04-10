@@ -1,7 +1,6 @@
 function deg_diff = get_degbtwlines(org, pntA, pntB)
-%
+% GET DEGREE BETWEEN LINES
 % org-pntA / org-pntB 
-%
 
 pntA = pntA - org;
 pntB = pntB - org;
