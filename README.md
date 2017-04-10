@@ -29,9 +29,8 @@
   * Distances from the closest right, center, and left cars
   * Geodesic distance from the start lane
   * Which lane and segment the current car is located at. 
-
-## How to Run?
-Run "demo_trackusage.m" 
+ 5. Traffic Lights are added. 
+ 6. Range finder sensors are added. 
 
 ## Contact
 sungjoon.choi@cpslab.snu.ac.kr
